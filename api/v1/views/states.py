@@ -60,4 +60,4 @@ def update_state(state_id):
         if key not in ["id", "created_at", "updated_at"]:
             setattr(state, key, value)
     state.save()
-    return state.to_dict({}), 200
+    return state.to_dict(), 200
