@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Web server
+Status of your API
 """
 from api.v1.views import app_views
 from flask import Flask
