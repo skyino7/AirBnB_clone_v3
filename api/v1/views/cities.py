@@ -3,6 +3,7 @@
 from api.v1.views import app_views
 from models import storage
 from models.city import City
+from models.state import State
 from flask import jsonify, request, abort
 
 
@@ -41,19 +42,21 @@ def delete_city(city_id):
                     strict_slashes=False)
 def create_city(state_id):
     """Create a city"""
-    # state = storage.get("State", state_id)
-    # if state is None:
-    #     abort(404)
-    # data = request.get_json()
-    # if data is None:
-    #     return "Not a JSON", 400
-    # if "name" not in data:
-    #     abort(400, description="Missing name")
-    # new_city = City(**data)
-    # new_city.state_id = state_id
-    # storage.new(new_city)
-    # storage.save()
-    # return jsonify(new_city.to_dict()), 201
+    state = storage.get("State", state_id)
+    if state is None:
+        abort(404)
+    data = request.get_json()
+    if data is None:
+        return jsonify({"Not a JSON"}), 400
+    if "name" not in data:
+        abort(400, description="Missing name")
+    state = State.query.get(state_id)
+    new_city = City(name=data["name"], state_id=state_id)
+    for key, value in data.items():
+        if key != 'name':
+            setattr(new_city, key, value)
+    storage.save()
+    return jsonify(new_city.to_dict()), 201
 
 
 @app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
