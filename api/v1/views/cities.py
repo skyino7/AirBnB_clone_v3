@@ -3,12 +3,11 @@
 from api.v1.views import app_views
 from models import storage
 from models.city import City
-from models.state import State
 from flask import jsonify, request, abort
 
 
 @app_views.route('/states/<state_id>/cities', methods=['GET'],
-                 strict_slashes=False)
+                    strict_slashes=False)
 def get_cities(state_id):
     """Return all cities"""
     state = storage.get("State", state_id)
@@ -39,7 +38,7 @@ def delete_city(city_id):
 
 
 @app_views.route('/states/<state_id>/cities', methods=['POST'],
-                 strict_slashes=False)
+                    strict_slashes=False)
 def create_city(state_id):
     """Create a city"""
     state = storage.get("State", state_id)
@@ -47,14 +46,12 @@ def create_city(state_id):
         abort(404)
     data = request.get_json()
     if data is None:
-        return jsonify({"Not a JSON"}), 400
+        return "Not a JSON", 400
     if "name" not in data:
         abort(400, description="Missing name")
-    state = State.query.get(state_id)
-    new_city = City(name=data["name"], state_id=state_id)
-    for key, value in data.items():
-        if key != 'name':
-            setattr(new_city, key, value)
+    new_city = City(**data)
+    new_city.state_id = state_id
+    storage.new(new_city)
     storage.save()
     return jsonify(new_city.to_dict()), 201
 
@@ -70,7 +67,6 @@ def update_city(city_id):
         abort(400, description="Not a JSON")
     for key, value in data.items():
         if key not in ['id', 'state_id', 'created_at', 'updated_at']:
-            settattr(city, key, value)
+            setattr(city, key, value)
     storage.save()
     return jsonify(city.to_dict()), 200
-
