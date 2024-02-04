@@ -24,25 +24,21 @@ def get_amenities(place_id):
 def delete_amenity(place_id, amenity_id):
     """Delete a amenity"""
     place = storage.get("Place", place_id)
-    if place is None or Amenity is None:
+    if place is None:
         abort(404)
-
+    amenity = storage.get("Amenity", amenity_id)
+    if amenity is None:
+        abort(404)
     if amenity not in place.amenities:
         abort(404)
-
-    if storage.__class__.__name__ == 'DBStorage':
-        place.amenities.remove(amenity)
-        storage.save()
-    else:
-        place.amenities.remove(amenity)
-        storage.save()
-
+    place.amenities.remove(amenity)
+    storage.save()
     return jsonify({}), 200
 
 
 @app_views.route('/places/<place_id>/amenities/<amenity_id>',
                  methods=['POST'], strict_slashes=False)
-def place_amenity(place_id, amenity_id):
+def create_amenity(place_id, amenity_id):
     """Create a amenity"""
     place = storage.get("Place", place_id)
     if place is None:
@@ -50,15 +46,8 @@ def place_amenity(place_id, amenity_id):
     amenity = storage.get("Amenity", amenity_id)
     if amenity is None:
         abort(404)
-
     if amenity in place.amenities:
         return jsonify(amenity.to_dict()), 200
-
-    if storage.__class__.__name__ == 'DBStorage':
-        place.amenities.append(amenity)
-        storage.save()
-    else:
-        place.amenities.append(amenity)
-        storage.save()
-
+    place.amenities.append(amenity)
+    storage.save()
     return jsonify(amenity.to_dict()), 201
